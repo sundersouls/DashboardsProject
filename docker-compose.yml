@@ -1,0 +1,26 @@
+services:
+  backend:
+    build:
+      context: ./chart_api
+      dockerfile: Dockerfile # Specify the Dockerfile if it's not named 'Dockerfile'
+    ports:
+      - "8000:8000" # Maps port 8000 of the container to port 8000 on the host
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./chart_api:/app # Mounts the chart_api directory for hot-reloading (dev mode)
+    depends_on:
+      - frontend # Start frontend first (if needed by your backend)
+    command: uvicorn chart_api:app --host 0.0.0.0 --port 8000 # Specify the command to run your app
+
+  frontend:
+    build:
+      context: ./nextjs-dashboard
+      dockerfile: Dockerfile # Specify the Dockerfile if it's not named 'Dockerfile'
+    ports:
+      - "3000:3000" # Maps port 3000 of the container to port 3000 on the host
+    volumes:
+      - ./nextjs-dashboard:/app # Mounts the nextjs-dashboard directory for hot-reloading (dev mode)
+    environment:
+      - CHOKIDAR_USEPOLLING=true # Optional: fixes file-watching issues in Docker on some systems
+    command: npm start # Specify the command to start the frontend app
